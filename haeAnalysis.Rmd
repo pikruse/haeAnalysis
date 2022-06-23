@@ -1,0 +1,218 @@
+---
+title: "HAE Analysis"
+author: "Peter I. Kruse"
+date: '2022-06-22'
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\textbf{Import Necessary Packages}
+
+```{r}
+library(tidyverse)
+library(janitor)
+```
+
+\textbf{Loading and Cleaning Data}
+
+```{r}
+# LOAD HAE DATA
+hae <- read_csv("HAE QA Data Collection.csv", show_col_types = FALSE) %>% 
+  clean_names()
+head(hae)
+```
+
+```{r}
+#CHANGE GENDER FROM BINARY TO M/F
+hae <- hae %>% 
+  mutate(gender = if_else(gender == 0, "M", "F"))
+```
+
+\textbf{Tests for Difference in Proportion by Gender}
+
+We used a chi-square test for difference in proportions between male and female study participants with the following groups:
+
+```{=tex}
+\begin{itemize}
+  \item Icatibant
+  \item Any rescue therapy
+  \item haegarda
+  \item lanadelumab
+  \item danazol
+  \item Any attack untreated
+  \item ACE inhibitors discussed
+  \item Estrogen discussed
+\end{itemize}
+```
+The chi square test is non-parametric, meaning that it is valid even if groups do not fall under are normal distribution and are not homoskedastic. Due to the small sample sizes in this data, this statistical test was selected for analysis.
+
+All data must meet these assumptions for the chi-square test to be valid: 
+
+\begin{enumerate}
+  \item Data in each group consists of frequencies or counts.
+  \item Subcategories in each group are mutually exclusive; samples only fit into one level of categorization.
+  \item Each subject contributes data to only one cell.
+  \item Study groups are independent.
+  \item There are two variables, both of which are measured as categories.
+  \item \textit{Expected} values of each cell should be greater than or equal to 5 in at least 80% of cells.
+\end{enumerate}
+
+Our hypotheses were:
+ \(H_{0}: p_{1} = p_{2}\) (The proportion of males and females treated/affected is equal.)
+ \(H_{A}: p_{1} \neq p_{2}\) (The proportion of males and females treated/affected differs.)
+
+We used $\alpha \leq 0.05$ as the threshold for significance in these hypothesis tests.
+
+#SOURCE: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3900058/#:~:text=The%20assumptions%20of%20the%20Chi,the%20variables%20are%20mutually%20exclusive.
+
+```{r}
+#icatibitant
+gender_icatibant <- table(hae$icatibant_firazyr, hae$gender)
+head(gender_icatibant)
+prop.test(gender_icatibant, correct = FALSE)
+```
+The p-value of 0.03634 is less than 0.05, so we can reject the null hypothesis. Therefore, we conclude that the proportion of females prescribed Icatibant is significantly different from the proportion of males prescribed Icatibant.
+
+```{r}
+# Any rescue therapy
+gender_rt <- table(hae$rescue_therapy_prescribed, hae$gender)
+head(gender_rt)
+prop.test(gender_rt, correct = FALSE)
+```
+The p-value of 0.03418 is less than 0.05, so we can reject the null hypothesis. Therefore, we conclude that the proportion of females prescribed rescue therapy is significantly different from the proportion of males prescribed rescue therapy. \textbf{However, due to low expected values in the data, assumption \textit{5} is violated, and more data is needed to fully validate the result.}
+
+```{r}
+# haegarda
+gender_haegarda <- table(hae$cinryze_haegarda_c_1_esterase_i, hae$gender)
+head(gender_haegarda)
+prop.test(gender_haegarda, correct = FALSE)
+```
+The p-value of 0.04445 is less than 0.05, so we can reject the null hypothesis. Therefore, we conclude that the proportion of females prescribed Haegarda is significantly different from the proportion of males prescribed Haegarda.
+
+```{r}
+# lanadelumab
+gender_lt <- table(hae$lanadelumab_takyzyro, hae$gender)
+head(gender_lt)
+prop.test(gender_lt, correct = FALSE)
+```
+The p-value of 0.5666 is greater than 0.05, so we fail to reject the null hypothesis. Therefore, we conclude that the proportion of females prescribed Lanadelumab is not significantly different from the proportion of males prescribed Lanadelumab.
+
+
+```{r}
+# danazol
+gender_da <- table(hae$danazol_androgen, hae$gender)
+head(gender_da)
+prop.test(gender_da, correct = FALSE)
+```
+The p-value of 0.004867 is less than 0.05, so we can reject the null hypothesis. Therefore, we conclude that the proportion of females prescribed rescue therapy is significantly different from the proportion of males prescribed rescue therapy.
+\textbf{However, due to low expected values in the data, assumption \textit{5} is violated, and more data is needed to fully validate the result.}
+
+
+```{r}
+# any attack untreated
+gender_aau <- table(hae$any_attacks_untreated , hae$gender)
+head(gender_aau)
+prop.test(gender_aau, correct = FALSE)
+```
+The p-value of 0.2021 is greater than 0.05, so we fail to reject the null hypothesis. Therefore, we conclude that the proportion of females with any attacks untreated is not significantly different from the proportion of males with any attacks untreated.
+
+
+```{r}
+# ACE inhibitors discussed
+gender_aid <- table(hae$ace_i_discussed, hae$gender)
+head(gender_aid)
+prop.test(gender_aid, correct = FALSE)
+```
+The p-value of 0.01105 is less than 0.05, so we can reject the null hypothesis. Therefore, we conclude that the proportion of females who discussed ACE inhibitors is significantly different from the proportion of males who discussed ACE inhibitors.
+
+```{r}
+# estrogen discussed
+gender_ed <- table(hae$estrogen_discussed, hae$gender)
+head(gender_ed)
+prop.test(gender_ed, correct = FALSE)
+```
+The p-value of 2.67e-05 is less than 0.05, so we can reject the null hypothesis. Therefore, we conclude that the proportion of females who discussed estrogen is significantly different from the proportion of males who discussed estrogen.
+
+\textbf{Tests for Difference in Proportion by Age}
+
+
+We used a chi-square test for difference in proportions between male and female study participants with the following groups:
+
+```{=tex}
+\begin{itemize}
+  \item attacks untreated
+  \item ACE inhibitors discussed
+  \item Estrogen discussed
+  \item Short term PPX
+  \item Long term PPX
+\end{itemize}
+```
+
+
+All data must meet these assumptions for the chi-square test to be valid: 
+
+\begin{enumerate}
+    \item Data in each group consists of frequencies or counts.
+  \item Subcategories in each group are mutually exclusive; samples only fit into one level of categorization.
+  \item Each subject contributes data to only one cell.
+  \item Study groups are independent.
+  \item There are two variables, both of which are measured as categories.
+  \item \textit{Expected} values of each cell should be greater than or equal to 5 in at least 80% of cells.
+\end{enumerate}
+
+Our Hypotheses:
+ \(H_{0}: p_{1} = p_{2}\) (The proportion of individuals over/under 18 treated/affected is equal.)
+ \(H_{A}: p_{1} \neq p_{2}\) (The proportion of individuals over/under 18 treated/affected differs.)
+ 
+We used $\alpha \leq 0.05$ as the threshold for significance.
+
+```{r}
+#CHANGE age FROM numeric TO >=/< 18
+hae <- hae %>% 
+  mutate(age = if_else(age >= 18, ">= 18", "< 18"))
+```
+
+```{r}
+#attacks untreated
+age_aau <- table(hae$any_attacks_untreated , hae$age)
+head(age_aau)
+prop.test(age_aau, correct = FALSE)
+```
+The p-value of 0.05661 is greater than 0.05, so we fail to reject the null hypothesis. Therefore, we conclude that the proportion of individuals under 18 with any attacks untreated is not significantly different from the proportion of individuals 18 or older with any attacks untreated. \textbf{However, due to low expected values in the data, \textit{5} is violated, and more data is needed to fully validate the result.}
+
+```{r}
+#ACE inhibitors discussed
+age_aid <- table(hae$ace_i_discussed, hae$age)
+head(age_aid)
+prop.test(age_aid, correct = FALSE)
+```
+The p-value of 0.483 is greater than 0.05, so we fail to reject the null hypothesis. Therefore, we conclude that the proportion of individuals under 18 with ace inhibitors discussed is not significantly different from the proportion of individuals 18 or older with ace inhibitors discussed. \textbf{However, due to low expected values in the data, assumption \textit{5} is violated, and more data is needed to fully validate the result.}
+
+
+```{r}
+#Estrogen discussed
+age_ed <- table(hae$estrogen_discussed, hae$age)
+head(age_ed)
+prop.test(age_ed, correct = FALSE)
+```
+The p-value of 0.6844 is greater than 0.05, so we fail to reject the null hypothesis. Therefore, we conclude that the proportion of individuals under 18 with estrogen discussed is not significantly different from the proportion of individuals 18 or older with estrogen discussed.\textbf{However, due to low expected values in the data, assumption \textit{5} is violated, and more data is needed to fully validate the result.}
+```{r}
+#Short term PPX
+age_stppx <- table(hae$stp_discussed, hae$age)
+head(age_stppx)
+prop.test(age_stppx, correct = FALSE)
+```
+The p-value of 0.483 is greater than 0.05, so we fail to reject the null hypothesis. Therefore, we conclude that the proportion of individuals under 18 with short term PPX discussed is not significantly different from the proportion of individuals 18 or older with short term PPX discussed. \textbf{However, due to low expected values in the data, assumption \textit{5} is violated, and more data is needed to fully validate the result.}
+
+```{r}
+#Long term PPX
+age_ltppx <- table(hae$ltp_discussed, hae$age)
+head(age_ltppx)
+prop.test(age_ltppx, correct = FALSE)
+```
+The p-value of 0.5664 is greater than 0.05, so we fail to reject the null hypothesis. Therefore, we conclude that the proportion of individuals under 18 with long term PPX discussed is not significantly different from the proportion of individuals 18 or older with long term PPX discussed. \textbf{However, due to low expected values in the data, assumption \textit{5} is violated, and more data is needed to fully validate the result.}
